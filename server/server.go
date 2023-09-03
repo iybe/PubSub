@@ -12,9 +12,10 @@ func Run() {
 	handlers := handlers.NewHandlers()
 
 	r := mux.NewRouter()
-	r.HandleFunc("/message/send/{resourceId}", handlers.SendMessage)
-	r.HandleFunc("/message/receive/{resourceId}", handlers.ReceiveMessages)
-	http.Handle("/", r)
+	s := r.PathPrefix("/message").Subrouter()
+	s.HandleFunc("/send/{resourceId}", handlers.SendMessage).Methods(http.MethodPost)
+	s.HandleFunc("/receive/{resourceId}", handlers.ReceiveMessages).Methods(http.MethodGet)
+	http.Handle("/", s)
 
 	fmt.Println("Server is listening on :8080")
 	http.ListenAndServe(":8080", nil)
