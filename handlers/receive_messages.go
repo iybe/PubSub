@@ -4,13 +4,19 @@ import (
 	"fmt"
 	"net/http"
 	"pubsub/pubsub"
-	"strings"
 
+	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 )
 
 func (h *Handlers) ReceiveMessages(w http.ResponseWriter, r *http.Request) {
-	resourceID := strings.TrimPrefix(r.URL.Path, "/message/receive/")
+	vars := mux.Vars(r)
+
+	resourceID, ok := vars["resourceId"]
+	if !ok {
+		http.Error(w, "resourceId empty", http.StatusBadRequest)
+		return
+	}
 
 	upgrader := websocket.Upgrader{
 		ReadBufferSize:  1024,

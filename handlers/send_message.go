@@ -4,7 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"pubsub/pubsub"
-	"strings"
+
+	"github.com/gorilla/mux"
 )
 
 type MessageRequest struct {
@@ -12,7 +13,13 @@ type MessageRequest struct {
 }
 
 func (h *Handlers) SendMessage(w http.ResponseWriter, r *http.Request) {
-	resourceID := strings.TrimPrefix(r.URL.Path, "/message/send/")
+	vars := mux.Vars(r)
+
+	resourceID, ok := vars["resourceId"]
+	if !ok {
+		http.Error(w, "resourceId empty", http.StatusBadRequest)
+		return
+	}
 
 	var receivedMsg MessageRequest
 	err := json.NewDecoder(r.Body).Decode(&receivedMsg)
